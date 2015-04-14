@@ -67,11 +67,12 @@ private
     api_process image_path, URI.join(@url, '/processImage', "?#{params}")
   end
 
-  def api_process_receipt(image_path, countries = [], extendedCharacterInfo = false)
+  def api_process_receipt(image_path, countries = [], extendedCharacterInfo = false, image_source = :auto)
     raise OCRSDK::UnsupportedInputFormat   unless supported_input_format? File.extname(image_path)[1..-1]
 
     params = URI.encode_www_form(
-        'xml:writeExtendedCharacterInfo' => extendedCharacterInfo.to_s)
+        'xml:writeExtendedCharacterInfo' => extendedCharacterInfo.to_s,
+        'imageSource' => image_source.to_s)
 
     api_process image_path, URI.join(@url, '/processReceipt', "?#{params}")
   end
