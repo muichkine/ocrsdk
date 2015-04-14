@@ -64,7 +64,7 @@ private
         exportFormat: format_to_s(format),
         profile: profile_to_s(profile))
 
-    self.api_process image_path, URI.join(@url, '/processImage', "?#{params}")
+    api_process image_path, URI.join(@url, '/processImage', "?#{params}")
   end
 
   def api_process_receipt(image_path, countries = [], extendedCharacterInfo = false)
@@ -73,7 +73,7 @@ private
     params = URI.encode_www_form(
         writeExtendedCharacterInfo: extendedCharacterInfo.to_s)
 
-    self.api_process image_path, URI.join(@url, '/processReceipt', "?#{params}")
+    api_process image_path, URI.join(@url, '/processReceipt', "?#{params}")
   end
 
   def api_process(image_path, uri)
