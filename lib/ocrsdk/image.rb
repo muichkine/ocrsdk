@@ -71,7 +71,7 @@ private
     raise OCRSDK::UnsupportedInputFormat   unless supported_input_format? File.extname(image_path)[1..-1]
 
     params = URI.encode_www_form(
-        writeExtendedCharacterInfo: extendedCharacterInfo.to_s)
+        'xml:writeExtendedCharacterInfo' => extendedCharacterInfo.to_s)
 
     api_process image_path, URI.join(@url, '/processReceipt', "?#{params}")
   end
