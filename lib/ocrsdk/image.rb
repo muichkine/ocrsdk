@@ -44,6 +44,12 @@ class OCRSDK::Image < OCRSDK::AbstractEntity
     end
   end
 
+  def as_receipt(countries = [], extendedCharacterInfo = false)
+    xml_string = api_process_receipt @image_path, countries, extendedCharacterInfo
+
+    OCRSDK::Promise.from_response xml_string
+  end
+
 private
 
   # TODO handle 4xx and 5xx responses and errors, file not found error
@@ -54,11 +60,23 @@ private
     raise OCRSDK::UnsupportedProfile       unless supported_profile? (profile)
 
     params = URI.encode_www_form(
-              language: languages_to_s(languages).join(','),
-              exportFormat: format_to_s(format), 
-              profile: profile_to_s(profile))
-    uri = URI.join @url, '/processImage', "?#{params}"
+        language: languages_to_s(languages).join(','),
+        exportFormat: format_to_s(format),
+        profile: profile_to_s(profile))
 
+    self.api_process image_path, URI.join(@url, '/processImage', "?#{params}")
+  end
+
+  def api_process_receipt(image_path, countries = [], extendedCharacterInfo = false)
+    raise OCRSDK::UnsupportedInputFormat   unless supported_input_format? File.extname(image_path)[1..-1]
+
+    params = URI.encode_www_form(
+        writeExtendedCharacterInfo: extendedCharacterInfo.to_s)
+
+    self.api_process image_path, URI.join(@url, '/processReceipt', "?#{params}")
+  end
+
+  def api_process(image_path, uri)
     retryable tries: OCRSDK.config.number_or_retries, on: OCRSDK::NetworkError, sleep: OCRSDK.config.retry_wait_time do
       begin
         RestClient.post uri.to_s, upload: { file: File.new(image_path, 'rb') }
@@ -67,4 +85,5 @@ private
       end
     end
   end
+
 end
