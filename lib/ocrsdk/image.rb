@@ -44,24 +44,32 @@ class OCRSDK::Image < OCRSDK::AbstractEntity
     end
   end
 
+  def as_multiple(languages, formats, profile = :text_extraction)
+    response = api_process_image @image_path, languages, formats, profile
+
+    OCRSDK::Promise.from_response response
+  end
+
   def as_receipt(countries = [], extendedCharacterInfo = false)
     xml_string = api_process_receipt @image_path, countries, extendedCharacterInfo
 
     OCRSDK::Promise.from_response xml_string
   end
 
-private
+  private
 
   # TODO handle 4xx and 5xx responses and errors, file not found error
   # http://ocrsdk.com/documentation/apireference/processImage/
-  def api_process_image(image_path, languages, format=:txt, profile=:document_conversion)
+  def api_process_image(image_path, languages, formats=:txt, profile=:document_conversion)
+    formats = [formats] unless formats.kind_of? Array
     raise OCRSDK::UnsupportedInputFormat   unless supported_input_format? File.extname(image_path)[1..-1]
-    raise OCRSDK::UnsupportedOutputFormat  unless supported_output_format? format
+    raise OCRSDK::TooManyConversionFormats if formats.length > 3
+    formats.each{ |f| raise OCRSDK::UnsupportedOutputFormat unless supported_output_format? f }
     raise OCRSDK::UnsupportedProfile       unless supported_profile? (profile)
 
     params = URI.encode_www_form(
         language: languages_to_s(languages).join(','),
-        exportFormat: format_to_s(format),
+        exportFormat: formats_to_s(formats),
         profile: profile_to_s(profile))
 
     api_process image_path, URI.join(@url, '/processImage', "?#{params}")

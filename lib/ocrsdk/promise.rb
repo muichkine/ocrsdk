@@ -25,8 +25,11 @@ class OCRSDK::Promise < OCRSDK::AbstractEntity
       raise OCRSDK::OCRSDKError, "Problem parsing provided xml string: #{xml_string}"
     end
 
-    @status     = status_to_sym task['status']
-    @result_url = task['resultUrl']
+    @status       = status_to_sym task['status']
+    @result_url   = task['resultUrl']
+    @result_url2  = task['resultUrl2']
+    @result_url3  = task['resultUrl3']
+
     @registration_time        = DateTime.parse task['registrationTime']    
     @estimate_processing_time = task['estimatedProcessingTime'].to_i
 
@@ -83,7 +86,11 @@ private
   end
 
   def api_get_result
-    RestClient.get @result_url.to_s
+    if @result_url2 # Multiple results
+      [@result_url, @result_url2, @result_url3].compact.map{ |url| RestClient.get(url.to_s).try(:force_encoding, 'utf-8') }
+    else
+      RestClient.get(@result_url.to_s).try(:force_encoding, 'utf-8')
+    end
   rescue RestClient::ExceptionWithResponse
     raise OCRSDK::NetworkError
   end

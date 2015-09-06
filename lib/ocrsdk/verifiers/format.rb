@@ -4,8 +4,12 @@ module OCRSDK::Verifiers::Format
     :tif, :tiff, :gif, :djvu, :djv, :jb2].freeze
 
   # http://ocrsdk.com/documentation/apireference/processImage/
-  OUTPUT_FORMATS = [:txt, :rtf, :docx, :xlsx, :pptx, :pdf_searchable, 
-    :pdf_text_and_images, :xml, :alto].freeze
+  OUTPUT_FORMATS = [:txt, :rtf, :docx, :xlsx, :pptx, :pdf_searchable, :pdfa,
+    :pdf_text_and_images, :xml, :xml_for_corrected_image, :alto].freeze
+
+  def formats_to_s(formats)
+    formats.map{ |f| self.format_to_s f }.join(',')
+  end
 
   def format_to_s(format)
     format.to_s.camelize(:lower)

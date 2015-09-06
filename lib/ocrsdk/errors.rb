@@ -6,6 +6,9 @@ module OCRSDK
   class ProcessingFailed    < OCRSDKError; end
 
   class UnsupportedFeature  < OCRSDKError; end
+
+  class TooManyConversionFormats < OCRSDKError; end
+
   class UnsupportedLanguage < UnsupportedFeature; end
   class UnsupportedProfile  < UnsupportedFeature; end
   class UnsupportedInputFormat  < UnsupportedFeature; end
